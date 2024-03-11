@@ -13,19 +13,20 @@ Before you begin, ensure you have the following installed on your machine:
 
 ## Project Structure
 
-ts-aws-cdk-multitier-deployment/
-|-- bin/
-| |-- main.ts // Main entry point for CDK app
-|-- lib/
-| |-- vpc-stack.ts // Stack definition for VPC
-| |-- backend-stack.ts // Stack definition for backend EC2 instance and RDS
-| |-- frontend-stack.ts // Stack definition for frontend EC2 instance and ALB
-|-- test/
-| |-- main.test.ts // Tests for CDK project
-|-- cdk.json // CDK app configuration
-|-- package.json // Node.js project configuration
-|-- tsconfig.json // TypeScript compiler configuration
-|-- parameters.json // Configuration parameters
+
+    ts-aws-cdk-multitier-deployment/
+    |-- bin/
+    | |-- main.ts // Main entry point for CDK app
+    |-- lib/
+    | |-- vpc-stack.ts // Stack definition for VPC
+    | |-- backend-stack.ts // Stack definition for backend EC2 instance and RDS
+    | |-- frontend-stack.ts // Stack definition for frontend EC2 instance and ALB
+    |-- test/
+    | |-- main.test.ts // Tests for CDK project
+    |-- cdk.json // CDK app configuration
+    |-- package.json // Node.js project configuration
+    |-- tsconfig.json // TypeScript compiler configuration
+    |-- parameters.json // Configuration parameters
 
 ## Architecture of the AWS components to be deployed
 Following is the architecture diagram of the components that are going to be deployed as part of deployment code.
