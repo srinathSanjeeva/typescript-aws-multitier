@@ -17,14 +17,20 @@
         "minCapacity": 1,
         "maxCapacity": 1,
         "desiredCapacity": 1,
-        "app_port": "3000"
+        "app_port": "3000",
+        "keyName": "ec2-pair"
       },
       "frontendInstance": {
-        "instanceType": "t2.micro"
+        "instanceType": "t2.micro",
+        "minCapacity": 1,
+        "maxCapacity": 1,
+        "desiredCapacity": 1,
+        "keyName": "ec2-pair"
       },
       "alb": {
         "internetFacing": true,
-        "listenerPort": 80
+        "listenerPort": 80,
+        "backendListenerPort": 3000
       },
       "tags": {
         "Environment": "dev",
@@ -55,11 +61,13 @@
         "instanceType": "t2.micro",
         "minCapacity": 1,
         "maxCapacity": 1,
-        "desiredCapacity": 1
+        "desiredCapacity": 1,
+        "keyName": "ec2-pair"
       },
       "alb": {
         "internetFacing": true,
-        "listenerPort": 80
+        "listenerPort": 80,
+        "backendListenerPort": 3000
       },
       "tags": {
         "Environment": "prod",

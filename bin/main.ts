@@ -45,7 +45,7 @@ const rdsStack = new RDSStack(app, `${environment}-RDSAppStack`, {
 
 // Create Backend stack
 
-new BackendStack(app, `${environment}-BackendAppStack`, {
+const backendStack = new BackendStack(app, `${environment}-BackendAppStack`, {
   environment,
   vpc: vpcStack.customVpc,
   rds: rdsStack.rdsInstance,
@@ -62,7 +62,7 @@ new FrontendStack(app, `${environment}-FrontendAppStack`, {
   environment,
   vpc: vpcStack.customVpc,
   frontendSecurityGroup: vpcStack.frontendSecurityGroup,
-  // backendAutoScalingGroup: backendStack.backendAutoScalingGroup,
+  backendAutoScalingGroup: backendStack.backendAutoScalingGroup,
   albConfig: config.alb,
   frontendInstanceConfig: config.frontendInstance,
 });

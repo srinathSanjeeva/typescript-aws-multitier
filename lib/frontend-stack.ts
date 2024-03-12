@@ -12,13 +12,16 @@ interface FrontendStackProps extends cdk.StackProps {
   albConfig: {
     internetFacing: boolean;
     listenerPort: number;
+    backendListenerPort: number;
   };
   frontendInstanceConfig: {
     instanceType: string;
     minCapacity: number;
     maxCapacity: number;
     desiredCapacity: number;
+    keyName: string;
   };
+  backendAutoScalingGroup: autoscaling.AutoScalingGroup;
 }
 
 export class FrontendStack extends cdk.Stack {
@@ -29,8 +32,8 @@ export class FrontendStack extends cdk.Stack {
 
             // Define the user data shell script
             const userDataScript = `#!/bin/bash            
-    sudo yum update -y
-    sudo yum install docker -y
+            sudo yum update -y
+            sudo yum install docker -y
           `;
 
         // Create Auto Scaling Group for the frontend instance
@@ -38,6 +41,7 @@ export class FrontendStack extends cdk.Stack {
           vpc: props.vpc,
           instanceType: new ec2.InstanceType(props.frontendInstanceConfig.instanceType),
           machineImage: new ec2.AmazonLinuxImage(),
+          keyName: props.frontendInstanceConfig.keyName,
           minCapacity: props.frontendInstanceConfig.minCapacity,
           maxCapacity: props.frontendInstanceConfig.maxCapacity,
           desiredCapacity: props.frontendInstanceConfig.desiredCapacity,
@@ -47,7 +51,8 @@ export class FrontendStack extends cdk.Stack {
 
         this.frontendAutoScalingGroup.addUserData(userDataScript);
         this.frontendAutoScalingGroup.addSecurityGroup(props.frontendSecurityGroup);
-        this.frontendAutoScalingGroup.node.addDependency(props.vpc);
+        this.frontendAutoScalingGroup.node.addDependency(props.vpc);        
+        this.frontendAutoScalingGroup.node.addDependency(props.backendAutoScalingGroup);
 
     // Create Application Load Balancer
     const alb = new elbv2.ApplicationLoadBalancer(
@@ -60,26 +65,47 @@ export class FrontendStack extends cdk.Stack {
     );
 
     // Create a listener and target group for the ALB
-    const listener = alb.addListener('Listener', {
+    const frontendListener = alb.addListener('Listener', {
       port: props.albConfig.listenerPort,
     });
 
     // Create a target group
-    const targetGroup = new elbv2.ApplicationTargetGroup(
+    const frontendTargetGroup = new elbv2.ApplicationTargetGroup(
       this,
-      'TargetGroup',
+      'frontendTargetGroup',
       {
         vpc: props.vpc,
         port: props.albConfig.listenerPort
-        // targets: [props.backendAutoScalingGroup],
       }
     );
 
     // Attach the target group to the listener
-    listener.addTargetGroups('TargetGroup', {
-      targetGroups: [targetGroup],
+    frontendListener.addTargetGroups('frontendTargetGroup', {
+      targetGroups: [frontendTargetGroup],
     });
+
+    // Add backendAutoScalingGroup as a target to the target group
+    const backendListener = alb.addListener('BackendListener', {
+      protocol: elbv2.ApplicationProtocol.HTTP,
+      port: props.albConfig.backendListenerPort,
+    });
+
+    // Create Target Groups
+    const backendTargetGroup = new elbv2.ApplicationTargetGroup(this, 'BackendTargetGroup', {
+      protocol: elbv2.ApplicationProtocol.HTTP,
+      port: props.albConfig.backendListenerPort,
+      vpc: props.vpc,
+      targets: [],
+    });    
+
+    // Attach the target group to the listener
+    backendListener.addTargetGroups('backendTargetGroup', {
+      targetGroups: [backendTargetGroup],
+    });
+
     alb.node.addDependency(props.vpc);
+    alb.node.addDependency(this.frontendAutoScalingGroup);
+    alb.node.addDependency(props.backendAutoScalingGroup);
     // alb.node.addDependency(props.backendAutoScalingGroup);
 
     // Output the DNS name of the ALB for testing purposes

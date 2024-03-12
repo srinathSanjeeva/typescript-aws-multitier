@@ -25,14 +25,15 @@ interface BackendStackProps extends cdk.StackProps {
     maxCapacity: number;
     desiredCapacity: number;
     app_port: number;
+    keyName: string;
   };
 
 }
 
 export class BackendStack extends cdk.Stack {
 
-  // public readonly backendInstance: ec2.Instance;
-  public readonly backendAutoScalingGroup: autoscaling.AutoScalingGroup;  
+  
+  public readonly backendAutoScalingGroup: autoscaling.AutoScalingGroup;
   constructor(scope: Construct, id: string, props: BackendStackProps) {
     super(scope, id, props);
 
@@ -57,6 +58,7 @@ export class BackendStack extends cdk.Stack {
             vpc: props.vpc,
             instanceType: new ec2.InstanceType(props.backendInstanceConfig.instanceType),
             machineImage: new ec2.AmazonLinuxImage(),
+            keyName: props.backendInstanceConfig.keyName,
             minCapacity: props.backendInstanceConfig.minCapacity,
             maxCapacity: props.backendInstanceConfig.maxCapacity,
             desiredCapacity: props.backendInstanceConfig.desiredCapacity,
@@ -64,10 +66,12 @@ export class BackendStack extends cdk.Stack {
             vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },            
             
           });
- 
+          
           this.backendAutoScalingGroup.addUserData(userDataScript);
           this.backendAutoScalingGroup.node.addDependency(props.vpc);
           this.backendAutoScalingGroup.node.addDependency(props.rds);
+
+          
     
   }
 }
