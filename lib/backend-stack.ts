@@ -63,7 +63,7 @@ export class BackendStack extends cdk.Stack {
             maxCapacity: props.backendInstanceConfig.maxCapacity,
             desiredCapacity: props.backendInstanceConfig.desiredCapacity,
             securityGroup: props.backendSecurityGroup,
-            vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },            
+            vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },            
             
           });
           
